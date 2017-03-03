@@ -1,6 +1,7 @@
 "use strict";
 declare let chrome: any;
 
+const STAFF_ITEM_WRAPPER_SELECTOR = "time-lines__wrapper";
 const POPUP_SELECTOR = "blabla__popup";
 const POPUP_IMAGE_SELECTOR = "blabla__popup_image";
 const STAFF_ITEM_SELECTOR = "time-lines-titles__item";
@@ -16,6 +17,8 @@ interface Rooms {
     302: RoomInfo;
 }
 
+let wrapper = null;
+
 const rooms: Rooms = {
     302: {
         description: "test",
@@ -27,15 +30,26 @@ const rooms: Rooms = {
 class BlaBlaStaff {
 
     constructor() {
+        document.addEventListener("click", BlaBlaStaff.removePopup);
+        window.addEventListener("scroll", BlaBlaStaff.removePopup);
+        window.addEventListener("resize", BlaBlaStaff.removePopup);
     }
 
     handleClick = function (event) {
         event.stopPropagation();
-        BlaBlaStaff.showPopup(event.target);
 
-        document.addEventListener("click", BlaBlaStaff.removePopup);
-        window.addEventListener("scroll", BlaBlaStaff.removePopup);
-        window.addEventListener("resize", BlaBlaStaff.removePopup);
+        let target = event.target;
+        while (target != wrapper) {
+            if (target && target.classList.contains(STAFF_ITEM_SELECTOR)) {
+                let roomElement = target.lastElementChild;
+                const isRoomElement = roomElement && roomElement.tagName == "SPAN";
+                if (isRoomElement) {
+                    BlaBlaStaff.showPopup(roomElement);
+                    return;
+                }
+            }
+            target = target.parentNode;
+        }
     };
 
     static createPhotoElement(roomNumber) {
@@ -60,10 +74,10 @@ class BlaBlaStaff {
         return info;
     }
 
-    static showPopup(target) {
+    static showPopup(roomElement) {
         BlaBlaStaff.removePopup();
 
-        let roomNumber = target.innerHTML;
+        let roomNumber = roomElement.innerHTML;
 
         const newPopup = document.createElement("div");
         newPopup.id = POPUP_SELECTOR;
@@ -71,7 +85,7 @@ class BlaBlaStaff {
         newPopup.appendChild(BlaBlaStaff.createPhotoElement(roomNumber));
         newPopup.appendChild(BlaBlaStaff.createInfoElement(roomNumber));
 
-        BlaBlaStaff.setPosition(target, newPopup);
+        BlaBlaStaff.setPosition(roomElement, newPopup);
 
         document.documentElement.appendChild(newPopup);
     }
@@ -92,9 +106,10 @@ window.onload = function () {
     const container = new BlaBlaStaff();
     setTimeout(function () {
         const items = document.getElementsByClassName(STAFF_ITEM_SELECTOR);
-        Array.from(items).forEach(function (i) {
-            i.classList.add(LINK_SELECTOR);
-            i.lastElementChild.addEventListener("click", container.handleClick);
-        });
+        [].slice.call(items).forEach(i => i.classList.add(LINK_SELECTOR));
+
+        wrapper = document.getElementsByClassName(STAFF_ITEM_WRAPPER_SELECTOR)[0];
+        wrapper.addEventListener("click", container.handleClick);
+
     }, 1000);
 };
