@@ -1,0 +1,39 @@
+{
+  "manifest_version": 2,
+  "name": "Bla bla Staff",
+  "description": "Показывает подробную информацию о переговорках в сервисе staff.skbkontur.ru",
+  "version": "1.0",
+  "browser_action": {
+    "default_icon": "icons/icon.png",
+    "default_title": "Bla bla Staff"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://staff.skbkontur.ru/*"
+      ],
+      "js": [
+        "script.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "permissions": [
+    "tabs",
+    "https://ajax.googleapis.com/",
+    "http://*.google.com/",
+    "https://*.google.com/"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
+  "web_accessible_resources": [
+    "rooms/*.jpg"
+  ]
+}
